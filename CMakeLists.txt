@@ -20,7 +20,10 @@ add_executable(cs2_replay_tool
         src/analysis/Player.hpp
         src/analysis/Player.cpp
         src/analysis/Round.hpp
-        src/analysis/Round.cpp)
+        src/analysis/Round.cpp
+        src/renderer/Render.cpp
+        src/renderer/Render.hpp
+        src/main.cpp)
 
 target_link_libraries(cs2_replay_tool PRIVATE
         nlohmann_json::nlohmann_json

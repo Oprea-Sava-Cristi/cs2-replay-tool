@@ -57,3 +57,7 @@ void Round::print() const {
         entry.second.print();
     }
 }
+
+std::string Round::getMapName() const {
+    return meta.mapName;
+}

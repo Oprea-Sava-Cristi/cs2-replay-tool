@@ -35,6 +35,7 @@ public:
     Round();
     explicit Round(const json &j);
     void print() const;
+    std::string getMapName() const;
 };
 
 #endif // ROUND_HPP
