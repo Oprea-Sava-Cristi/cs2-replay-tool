@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "fromTick": 0,
+    "isTwoFloor": true,
+    "lowerSectionBorderZ": -50,
+    "mapName": "de_mirage",
+    "mapScale": 1,
+    "roundFreezeEndTick": 1279,
+    "roundNumber": 1,
+    "roundScoreUpdateTick": 2494,
+    "roundTime": 38,
+    "score": [
+      0,
+      1
+    ],
+    "tickRate": 64,
+    "toTick": 2494,
+    "winReason": 8,
+    "winnerTeam": 3
+  },
+  "playerPositions": {
+    "76561198375596933": {
+      "name": "yrikbomber",
+      "steamID": 76561198375596933,
+      "frames": [
+        {
+          "activeWeapon": "Knife",
+          "armor": 100,
+          "health": 100,
+          "isDefusing": false,
+          "isDucking": false,
+          "isPlanting": false,
+          "isReloading": false,
+          "positionX": 1136,
+          "positionY": -160,
+          "positionZ": -164.4305419921875,
+          "team": 2,
+          "velocityX": 0,
+          "velocityY": 0,
+          "viewDirectionX": -90,
+          "weapons": [
+            "Knife"
+          ]
+        },
+        {
+          "activeWeapon": "Knife",
+          "armor": 100,
+          "health": 100,
+          "isDefusing": false,
+          "isDucking": false,
+          "isPlanting": false,
+          "isReloading": false,
+          "positionX": 1136,
+          "positionY": -160,
+          "positionZ": -164.4305419921875,
+          "team": 2,
+          "velocityX": 0,
+          "velocityY": 0,
+          "viewDirectionX": -90,
+          "weapons": [
+            "Knife"
+          ]
+        },
+        {
+          "activeWeapon": "Knife",
+          "armor": 100,
+          "health": 100,
+          "isDefusing": false,
+          "isDucking": false,
+          "isPlanting": false,
+          "isReloading": false,
+          "positionX": 1136,
+          "positionY": -160,
+          "positionZ": -164.4305419921875,
+          "team": 2,
+          "velocityX": 0,
+          "velocityY": 0,
+          "viewDirectionX": -90,
+          "weapons": [
+            "Knife"
+          ]
+        }
+      ]
+    },
+    "76561198842360446": {
+      "name": "Chrysty22",
+      "steamID": 76561198842360446,
+      "frames": [
+        {
+          "activeWeapon": "Knife",
+          "armor": 100,
+          "health": 100,
+          "isDefusing": false,
+          "isDucking": false,
+          "isPlanting": false,
+          "isReloading": false,
+          "positionX": 1296,
+          "positionY": -352,
+          "positionZ": -167.96875,
+          "team": 2,
+          "velocityX": 0,
+          "velocityY": 0,
+          "viewDirectionX": -133.00015,
+          "weapons": [
+            "Knife"
+          ]
+        },
+        {
+          "activeWeapon": "Knife",
+          "armor": 100,
+          "health": 100,
+          "isDefusing": false,
+          "isDucking": false,
+          "isPlanting": false,
+          "isReloading": false,
+          "positionX": 1296,
+          "positionY": -352,
+          "positionZ": -167.96875,
+          "team": 2,
+          "velocityX": 0,
+          "velocityY": 0,
+          "viewDirectionX": -133.00015,
+          "weapons": [
+            "Knife"
+          ]
+        },
+        {
+          "activeWeapon": "Knife",
+          "armor": 100,
+          "health": 100,
+          "isDefusing": false,
+          "isDucking": false,
+          "isPlanting": false,
+          "isReloading": false,
+          "positionX": 1296,
+          "positionY": -352,
+          "positionZ": -167.96875,
+          "team": 2,
+          "velocityX": 0,
+          "velocityY": 0,
+          "viewDirectionX": -133.00015,
+          "weapons": [
+            "Knife"
+          ]
+        }
+      ]
+    }
+  }
+}
