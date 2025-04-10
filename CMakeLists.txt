@@ -25,7 +25,6 @@ add_executable(cs2_replay_tool
         src/renderer/Render.hpp
         src/main.cpp)
 
-
 target_link_libraries(cs2_replay_tool PRIVATE
         nlohmann_json::nlohmann_json
 )
