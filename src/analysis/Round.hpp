@@ -1,5 +1,5 @@
-#ifndef DEMO_HPP
-#define DEMO_HPP
+#ifndef ROUND_HPP
+#define ROUND_HPP
 
 #include "Player.hpp"
 #include <string>
@@ -26,15 +26,16 @@ struct Meta {
     int winnerTeam;
 };
 
-class Demo {
+class Round {
 private:
     Meta meta;
     std::unordered_map<uint64_t, Player> playerPositions;
 
 public:
-    Demo();
-    explicit Demo(const json &j);
+    Round();
+    explicit Round(const json &j);
     void print() const;
+    std::string getMapName() const;
 };
 
-#endif // DEMO_HPP
+#endif // ROUND_HPP
