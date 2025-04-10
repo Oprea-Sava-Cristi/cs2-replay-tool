@@ -9,10 +9,37 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msgs2 "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
-var roundActive int = 0
+var roundNumber int = 0
 var stopParsing bool = false
+
+type Frame struct {
+    ActiveWeapon    string  `json:"activeWeapon"`
+    Armor           int     `json:"armor"`
+    Health          int     `json:"health"`
+    IsDefusing      bool    `json:"isDefusing"`
+    IsDucking       bool    `json:"isDucking"`
+    IsPlanting      bool    `json:"isPlanting"`
+    IsReloading     bool    `json:"isReloading"`
+    PositionX       float64 `json:"positionX"`
+    PositionY       float64 `json:"positionY"`
+    PositionZ       float64 `json:"positionZ"`
+    Team            int     `json:"team"`
+    VelocityX       float64 `json:"velocityX"`
+    VelocityY       float64 `json:"velocityY"`
+    // VelocityZ       float64 `json:"velocityZ"`
+    ViewDirectionX  float32 `json:"viewDirectionX"`
+    // ViewDirectionY  float32 `json:"viewDirectionY"`
+    Weapons         []string `json:"weapons"`
+}
+
+type Player struct {
+    Name   string  `json:"name"`
+    SteamID uint64 `json:"steamID"`
+    Frames []Frame `json:"frames"`
+}
 
 func main() {
 	// Open the demo file
@@ -26,19 +53,53 @@ func main() {
 	p := dem.NewParser(f)
 	defer p.Close()
 
+	var roundFreezeEndTick int
+	var roundScoreUpdateTick int
+	var roundEndReason events.RoundEndReason
+	var winningTeam common.Team
+	var roundStartTick int
+	var roundEndTick int
+	var mapName string
+
+	playerMap := make(map[uint64]*Player)
+
 	p.RegisterEventHandler(func(e events.RoundStart) {
-		roundActive = roundActive + 1
-		if roundActive == 2 {
-			stopParsing = true
-		}
 		log.Printf("Round started")
+		roundNumber++
+		roundStartTick = p.GameState().IngameTick()
 	})
 	p.RegisterEventHandler(func(e events.RoundEnd) {
-		// roundActive = false
+		stopParsing = true
+		roundEndReason = e.Reason
+		winningTeam = e.Winner
+		roundEndTick = p.GameState().IngameTick()
 		log.Printf("Round ended: %s", e.Reason)
-		// Uncomment the next line if you want to exit after one round.
-		// os.Exit(0)
 	})
+
+	p.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
+		roundFreezeEndTick = p.GameState().IngameTick()
+	})
+
+	p.RegisterEventHandler(func(e events.ScoreUpdated) {
+		roundScoreUpdateTick = p.GameState().IngameTick()
+	})
+
+	p.RegisterNetMessageHandler(func(m *msgs2.CSVCMsg_ServerInfo) {
+		fmt.Println(m.GetMapName())
+		mapName = m.GetMapName()
+	})
+
+	p.RegisterEventHandler(func(e events.PlayerInfo) {
+		if e.Info.XUID != 0 {
+			player := Player{
+				Name:    e.Info.Name,
+				SteamID: e.Info.XUID,
+				Frames:  []Frame{},
+			}
+			playerMap[e.Info.XUID] = &player
+		}
+	})
+	
 
 	// Parse the header to access general information
 	header, err := p.ParseHeader()
@@ -57,7 +118,6 @@ func main() {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-	var allPlayerData []map[string]interface{}
 
 	// Iterate through the demo ticks
 	for {
@@ -71,39 +131,34 @@ func main() {
 
 		// Access the current game state
 		gameState := p.GameState()
-
+		// currentTick := gameState.IngameTick()
+		
 		// Iterate over all players
 		for _, player := range gameState.Participants().Connected() {
 			if player == nil || player.Entity == nil {
 				continue // Skip if player or entity is nil
 			}
-
+		
 			if player.IsAlive() {
-				// Extract relevant player data using accessor methods
-				playerData := map[string]interface{}{
-					"tick":           gameState.IngameTick(),
-					"steamID":        player.SteamID64,
-					"name":           player.Name,
-					"health":         player.Health(),
-					"armor":          player.Armor(),
-					"positionX":      player.Position().X,
-					"positionY":      player.Position().Y,
-					"positionZ":      player.Position().Z,
-					"viewDirectionX": player.ViewDirectionX(),
-					"viewDirectionY": player.ViewDirectionY(),
-					"velocityX":      player.Velocity().X,
-					"velocityY":      player.Velocity().Y,
-					"velocityZ":      player.Velocity().Z,
-					"team":           player.Team,
-					"isDucking":      player.IsDucking(),
-					"isReloading":    player.IsReloading,
-					"isDefusing":     player.IsDefusing,
-					"isPlanting":     player.IsPlanting,
-					"weapons":        extractWeapons(player),
-					"activeWeapon":   player.ActiveWeapon().String(),
+				frame := Frame{
+					ActiveWeapon:    player.ActiveWeapon().String(),
+					Armor:           player.Armor(),
+					Health:          player.Health(),
+					PositionX:      player.Position().X,
+					PositionY:      player.Position().Y,
+					PositionZ:      player.Position().Z,
+					Team:           int(player.Team),
+					VelocityX:      player.Velocity().X,
+					VelocityY:      player.Velocity().Y,
+					// VelocityZ:      player.Velocity().Z,
+					ViewDirectionX: player.ViewDirectionX(),
+					// ViewDirectionY: player.ViewDirectionY(),
+					Weapons:        extractWeapons(player),
 				}
-
-				allPlayerData = append(allPlayerData, playerData)
+		
+				if existingPlayer, exists := playerMap[player.SteamID64]; exists {
+					existingPlayer.Frames = append(existingPlayer.Frames, frame)
+				}
 			}
 		}
 
@@ -111,7 +166,36 @@ func main() {
 			break
 		}
 	}
-	if err := encoder.Encode(allPlayerData); err != nil {
+	// Create a map to store the player data
+	meta := map[string]interface{}{
+		"isTwoFloor":            mapName == "de_vertigo" || mapName == "de_nuke" || mapName == "de_train",
+		"mapName":               mapName,
+		"mapScale":              getMapScale(mapName),
+		"posX":                  getPosX(mapName),
+		"posY":                  getPosY(mapName),
+		"fromTick":              roundStartTick,
+		"toTick":                roundEndTick,
+		"roundNumber":           roundNumber,
+		"winnerTeam":            int(winningTeam),
+		"winReason":             int(roundEndReason),
+		"tickRate":              64,
+		"lowerSectionBorderZ":   getLowerSectionBorderZ(mapName),
+		"roundTime":             (roundEndTick-roundStartTick) / 64,
+		"roundFreezeEndTick":    roundFreezeEndTick,
+		"roundScoreUpdateTick":  roundScoreUpdateTick,
+		"score": []int{
+			p.GameState().Team(common.TeamTerrorists).Score(),
+			p.GameState().Team(common.TeamCounterTerrorists).Score(),
+		},
+	}
+
+	output := map[string]interface{}{
+		"meta":            meta,
+		"playerPositions": playerMap,
+	}
+
+	// Write the player data to the JSON file
+	if err := encoder.Encode(output); err != nil {
 		log.Fatalf("Failed to write player data to JSON file: %v", err)
 	}
 }
@@ -123,4 +207,117 @@ func extractWeapons(player *common.Player) []string {
 		weapons = append(weapons, weapon.String())
 	}
 	return weapons
+}
+
+// getLowerSectionBorderZ returns the lower section border Z value based on the map name
+func getLowerSectionBorderZ(mapName string) float64 {
+    switch mapName {
+    case "de_vertigo":
+        return 11700 
+    case "de_nuke":
+        return -495 
+    case "de_train":
+        return -50
+    default:
+        return 0
+    }
+}
+
+func getMapScale(mapName string) float64 {
+	switch mapName {
+	case "de_mirage":
+		return 5
+	case "de_vertigo":
+		return 4.0
+	case "de_nuke":
+		return 7
+	case "de_train":
+		return 4.082077
+	case "de_inferno":
+		return 4.9
+	case "de_dust2":
+		return 4.4
+	case "de_anubis":
+		return 5.22
+	case "de_ancient":
+		return 5
+	case "de_overpass":
+		return 5.2
+	case "cs_office":
+		return 4.1
+	case "cs_italy":
+		return 4.6
+	case "ar_shoots":
+		return 2.6875
+	case "ar_baggage":
+		return 2.539062
+	default:
+		return 1.0
+	}
+}
+
+func getPosX(mapName string) float64 {
+	switch mapName {
+	case "de_mirage":
+		return -3230
+	case "de_vertigo":
+		return -3168
+	case "de_nuke":
+		return -3453
+	case "de_train":
+		return -2308
+	case "de_inferno":
+		return -2087
+	case "de_dust2":
+		return -2476
+	case "de_anubis":
+		return -2796
+	case "de_ancient":
+		return -2953
+	case "de_overpass":
+		return -4831
+	case "cs_office":
+		return -1838
+	case "cs_italy":
+		return -2647
+	case "ar_shoots":
+		return -1368
+	case "ar_baggage":
+		return -1316
+	default:
+		return 0.0
+	}
+}
+
+func getPosY(mapName string) float64 {
+	switch mapName {
+	case "de_mirage":
+		return 1713
+	case "de_vertigo":
+		return 1762
+	case "de_nuke":
+		return 2887
+	case "de_train":
+		return 2078
+	case "de_inferno":
+		return 3870
+	case "de_dust2":
+		return 3239
+	case "de_anubis":
+		return 3328
+	case "de_ancient":
+		return 2164
+	case "de_overpass":
+		return 1781
+	case "cs_office":
+		return 1858
+	case "cs_italy":
+		return 2592
+	case "ar_shoots":
+		return 1952
+	case "ar_baggage":
+		return 1288
+	default:
+		return 0.0
+	}
 }

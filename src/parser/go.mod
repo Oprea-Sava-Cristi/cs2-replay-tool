@@ -3,6 +3,7 @@ module cs2-replay-tool
 go 1.22.2
 
 require (
+	github.com/elliotchance/orderedmap v1.8.0 // indirect
 	github.com/golang/geo v0.0.0-20250410091149-9ff723126794 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/markus-wa/demoinfocs-golang/v4 v4.3.3 // indirect
