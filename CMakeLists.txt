@@ -17,11 +17,10 @@ FetchContent_MakeAvailable(SFML)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(cs2_replay_tool
-        src/analysis/main.cpp
         src/analysis/Player.hpp
         src/analysis/Player.cpp
-        src/analysis/Demo.hpp
-        src/analysis/Demo.cpp)
+        src/analysis/Round.hpp
+        src/analysis/Round.cpp)
 
 target_link_libraries(cs2_replay_tool PRIVATE
         nlohmann_json::nlohmann_json

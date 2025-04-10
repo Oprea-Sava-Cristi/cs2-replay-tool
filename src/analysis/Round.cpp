@@ -1,13 +1,13 @@
-#include "Demo.hpp"
+#include "Round.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
-Demo::Demo() {
+Round::Round() {
     meta = {0, false, 0.0, "", 1.0, 0, 0, 0, 0, {0, 0}, 64, 0, 0, 0};
 }
 
-Demo::Demo(const json &j) {
+Round::Round(const json &j) {
     if (j.contains("meta")) {
         const json &m = j["meta"];
         meta.fromTick = m.value("fromTick", 0);
@@ -46,7 +46,7 @@ Demo::Demo(const json &j) {
     }
 }
 
-void Demo::print() const {
+void Round::print() const {
     std::cout << "Map: " << meta.mapName << "\n"
               << "Round: " << meta.roundNumber << "\n"
               << "Round Time: " << meta.roundTime << "\n"
