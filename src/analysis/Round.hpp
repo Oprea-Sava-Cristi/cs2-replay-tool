@@ -29,13 +29,16 @@ struct Meta {
 class Round {
 private:
     Meta meta;
-    std::unordered_map<uint64_t, Player> playerPositions;
+    std::unordered_map<uint64_t, Player> players;
 
 public:
     Round();
     explicit Round(const json &j);
     void print() const;
     std::string getMapName() const;
+    int getTickRate() const;
+    double getMapScale() const;
+    std::unordered_map<uint64_t, Player>& getPlayers();
 };
 
 Round createRound(std::string);

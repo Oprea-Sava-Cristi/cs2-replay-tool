@@ -4,11 +4,15 @@
 
 Player::Player()
     : steamid(0), name("Unknown") {
+    playerCircle = sf::CircleShape(8.f);
+    playerCircle.setOrigin({8.f, 8.f});
 }
 
-Player::Player(uint64_t steamid, std::string name, const TickData &tickData)
+Player::Player(uint64_t steamid, std::string name, const TickData &tick)
     : steamid(steamid), name(std::move(name)) {
-    ticks.push_back(tickData);
+    ticks.push_back(tick);
+    playerCircle = sf::CircleShape(8.f);
+    playerCircle.setOrigin({8.f, 8.f});
 }
 
 Player::Player(uint64_t steamid, std::string name, const json &frames)
@@ -28,9 +32,31 @@ Player::Player(uint64_t steamid, std::string name, const json &frames)
         tick.isReloading = frame.value("isReloading", false);
         ticks.push_back(tick);
     }
+    playerCircle = sf::CircleShape(8.f);
+    playerCircle.setOrigin({8.f, 8.f});
 }
 
 Player::~Player() = default;
+
+void Player::updatePlayerCircle(const TickData &tick, double scale) {
+    // std::cout << (tick.X-3230)/scale << " " << (tick.Y+1713)/scale << " " << scale << std::endl;
+    playerCircle.setPosition({static_cast<float>((-(-3230)+tick.X)/scale), static_cast<float>((1713-tick.Y)/scale)});
+    if (tick.team == 2) {
+        playerCircle.setFillColor(sf::Color::Yellow);
+    } else if (tick.team == 3) {
+        playerCircle.setFillColor(sf::Color::Blue);
+    } else {
+        playerCircle.setFillColor(sf::Color::White);
+    }
+}
+
+TickData Player::getTick(size_t index) {
+    return ticks[index];
+}
+
+sf::CircleShape Player::getPlayerCircle() {
+    return playerCircle;
+}
 
 void Player::print() const {
     std::cout << "Player Name: " << name << "\n"

@@ -30,8 +30,8 @@ Round::Round(const json &j) {
     }
 
     if (j.contains("playerPositions")) {
-        const json &players = j["playerPositions"];
-        for (auto it = players.begin(); it != players.end(); ++it) {
+        const json &playerPositions = j["playerPositions"];
+        for (auto it = playerPositions.begin(); it != playerPositions.end(); ++it) {
             uint64_t steamid = std::stoull(it.key());
             const json &playerInfo = it.value();
             std::string name = playerInfo.value("name", "Unknown");
@@ -39,12 +39,24 @@ Round::Round(const json &j) {
             if (playerInfo.contains("frames")) {
                 const json &frames = playerInfo["frames"];
                 Player p(steamid, name, frames);
-                playerPositions[steamid] = p;
+                players[steamid] = p;
             }
         }
     } else {
         throw std::runtime_error("JSON does not contain \"playerPositions\" field.");
     }
+}
+
+int Round::getTickRate() const {
+    return meta.tickRate;
+}
+
+std::unordered_map<uint64_t, Player>& Round::getPlayers() {
+    return players;
+}
+
+double Round::getMapScale() const {
+    return meta.mapScale;
 }
 
 void Round::print() const {
@@ -54,7 +66,7 @@ void Round::print() const {
               << "Score: " << meta.score[0] << " - " << meta.score[1] << "\n"
               << "--------------------------" << std::endl;
 
-    for (const auto &entry : playerPositions) {
+    for (const auto &entry : players) {
         entry.second.print();
     }
 }
@@ -65,7 +77,7 @@ std::string Round::getMapName() const {
 
 Round createRound(std::string filePath) {
 
-    filePath = R"(.\data\player_data.json)";
+    filePath = R"(./data/player_data.json)";
     std::ifstream file(filePath);
     if (!file) {
         std::cerr << "Failed to open player_data.json" << std::endl;

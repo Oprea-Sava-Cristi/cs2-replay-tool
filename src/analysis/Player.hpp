@@ -5,6 +5,8 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
+#include "SFML/Graphics/CircleShape.hpp"
+
 using json = nlohmann::json;
 
 struct TickData {
@@ -26,15 +28,22 @@ private:
     uint64_t steamid;
     std::string name;
     std::vector<TickData> ticks;
+    sf::CircleShape playerCircle;
 
 public:
     Player();
 
-    Player(uint64_t steamid, std::string name, const TickData &tickData);
+    Player(uint64_t steamid, std::string name, const TickData &tick);
 
     Player(uint64_t steamid, std::string name, const json &frames);
 
     ~Player();
+
+    void updatePlayerCircle(const TickData &tick, double scale);
+
+    TickData getTick(size_t);
+
+    sf::CircleShape getPlayerCircle();
 
     void print() const;
 };
