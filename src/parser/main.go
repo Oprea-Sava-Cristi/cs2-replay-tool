@@ -36,9 +36,10 @@ type Frame struct {
 }
 
 type Player struct {
-	Name    string  `json:"name"`
-	SteamID uint64  `json:"steamID"`
-	Frames  []Frame `json:"frames"`
+	Name      string  `json:"name"`
+	SteamID   uint64  `json:"steamID"`
+	DeathTick int     `json:"deathTick,omitempty"`
+	Frames    []Frame `json:"frames"`
 }
 
 func main() {
@@ -97,6 +98,14 @@ func main() {
 				Frames:  []Frame{},
 			}
 			playerMap[e.Info.XUID] = &player
+		}
+	})
+
+	p.RegisterEventHandler(func(e events.Kill) {
+		if e.Killer != nil && e.Victim != nil {
+			if Victim, exists := playerMap[e.Victim.SteamID64]; exists {
+				Victim.DeathTick = p.GameState().IngameTick()
+			}
 		}
 	})
 
