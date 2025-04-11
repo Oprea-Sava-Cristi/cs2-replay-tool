@@ -16,6 +16,7 @@ var roundNumber int = 0
 var stopParsing bool = false
 
 type Frame struct {
+	Tick         int     `json:"tick"`
 	ActiveWeapon string  `json:"activeWeapon"`
 	Armor        int     `json:"armor"`
 	Health       int     `json:"health"`
@@ -61,28 +62,32 @@ func main() {
 	var roundStartTick int
 	var roundEndTick int
 	var mapName string
+	currentTick := 0
+
+	fmt.Printf("%v", p.TickRate())
 
 	playerMap := make(map[uint64]*Player)
 
 	p.RegisterEventHandler(func(e events.RoundStart) {
 		log.Printf("Round started")
 		roundNumber++
-		roundStartTick = p.GameState().IngameTick()
+		roundStartTick = currentTick
+		fmt.Printf("Round number: %d\n", roundStartTick)
 	})
 	p.RegisterEventHandler(func(e events.RoundEnd) {
 		stopParsing = true
 		roundEndReason = e.Reason
 		winningTeam = e.Winner
-		roundEndTick = p.GameState().IngameTick()
+		roundEndTick = currentTick
 		log.Printf("Round ended: %v", e.Reason)
 	})
 
 	p.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
-		roundFreezeEndTick = p.GameState().IngameTick()
+		roundFreezeEndTick = currentTick
 	})
 
 	p.RegisterEventHandler(func(e events.ScoreUpdated) {
-		roundScoreUpdateTick = p.GameState().IngameTick()
+		roundScoreUpdateTick = currentTick
 	})
 
 	p.RegisterNetMessageHandler(func(m *msgs2.CSVCMsg_ServerInfo) {
@@ -104,7 +109,7 @@ func main() {
 	p.RegisterEventHandler(func(e events.Kill) {
 		if e.Victim != nil {
 			if Victim, exists := playerMap[e.Victim.SteamID64]; exists {
-				Victim.DeathTick = p.GameState().IngameTick()
+				Victim.DeathTick = currentTick - roundStartTick - 1
 			}
 		}
 	})
@@ -132,6 +137,7 @@ func main() {
 			break
 		}
 		frame, err := p.ParseNextFrame()
+		currentTick += 1
 		if err != nil {
 			break // End of demo
 		}
@@ -148,6 +154,7 @@ func main() {
 
 			if player.IsAlive() {
 				frame := Frame{
+					Tick:         currentTick - roundStartTick - 1,
 					ActiveWeapon: player.ActiveWeapon().String(),
 					Armor:        player.Armor(),
 					Health:       player.Health(),
@@ -188,8 +195,8 @@ func main() {
 		"tickRate":             64,
 		"lowerSectionBorderZ":  getLowerSectionBorderZ(mapName),
 		"roundTime":            (roundEndTick - roundStartTick) / 64,
-		"roundFreezeEndTick":   roundFreezeEndTick,
-		"roundScoreUpdateTick": roundScoreUpdateTick,
+		"roundFreezeEndTick":   roundFreezeEndTick - roundStartTick - 1,
+		"roundScoreUpdateTick": roundScoreUpdateTick - roundStartTick - 1,
 		"score": []int{
 			p.GameState().Team(common.TeamTerrorists).Score(),
 			p.GameState().Team(common.TeamCounterTerrorists).Score(),
