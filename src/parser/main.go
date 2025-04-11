@@ -102,7 +102,7 @@ func main() {
 	})
 
 	p.RegisterEventHandler(func(e events.Kill) {
-		if e.Killer != nil && e.Victim != nil {
+		if e.Victim != nil {
 			if Victim, exists := playerMap[e.Victim.SteamID64]; exists {
 				Victim.DeathTick = p.GameState().IngameTick()
 			}
