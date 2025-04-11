@@ -16,29 +16,29 @@ var roundNumber int = 0
 var stopParsing bool = false
 
 type Frame struct {
-    ActiveWeapon    string  `json:"activeWeapon"`
-    Armor           int     `json:"armor"`
-    Health          int     `json:"health"`
-    IsDefusing      bool    `json:"isDefusing"`
-    IsDucking       bool    `json:"isDucking"`
-    IsPlanting      bool    `json:"isPlanting"`
-    IsReloading     bool    `json:"isReloading"`
-    PositionX       float64 `json:"positionX"`
-    PositionY       float64 `json:"positionY"`
-    PositionZ       float64 `json:"positionZ"`
-    Team            int     `json:"team"`
-    VelocityX       float64 `json:"velocityX"`
-    VelocityY       float64 `json:"velocityY"`
-    // VelocityZ       float64 `json:"velocityZ"`
-    ViewDirectionX  float32 `json:"viewDirectionX"`
-    // ViewDirectionY  float32 `json:"viewDirectionY"`
-    Weapons         []string `json:"weapons"`
+	ActiveWeapon string  `json:"activeWeapon"`
+	Armor        int     `json:"armor"`
+	Health       int     `json:"health"`
+	IsDefusing   bool    `json:"isDefusing"`
+	IsDucking    bool    `json:"isDucking"`
+	IsPlanting   bool    `json:"isPlanting"`
+	IsReloading  bool    `json:"isReloading"`
+	PositionX    float64 `json:"positionX"`
+	PositionY    float64 `json:"positionY"`
+	PositionZ    float64 `json:"positionZ"`
+	Team         int     `json:"team"`
+	VelocityX    float64 `json:"velocityX"`
+	VelocityY    float64 `json:"velocityY"`
+	// VelocityZ       float64 `json:"velocityZ"`
+	ViewDirectionX float32 `json:"viewDirectionX"`
+	// ViewDirectionY  float32 `json:"viewDirectionY"`
+	Weapons []string `json:"weapons"`
 }
 
 type Player struct {
-    Name   string  `json:"name"`
-    SteamID uint64 `json:"steamID"`
-    Frames []Frame `json:"frames"`
+	Name    string  `json:"name"`
+	SteamID uint64  `json:"steamID"`
+	Frames  []Frame `json:"frames"`
 }
 
 func main() {
@@ -73,7 +73,7 @@ func main() {
 		roundEndReason = e.Reason
 		winningTeam = e.Winner
 		roundEndTick = p.GameState().IngameTick()
-		log.Printf("Round ended: %s", e.Reason)
+		log.Printf("Round ended: %v", e.Reason)
 	})
 
 	p.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
@@ -99,7 +99,6 @@ func main() {
 			playerMap[e.Info.XUID] = &player
 		}
 	})
-	
 
 	// Parse the header to access general information
 	header, err := p.ParseHeader()
@@ -118,7 +117,6 @@ func main() {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-
 	// Iterate through the demo ticks
 	for {
 		if stopParsing {
@@ -132,30 +130,30 @@ func main() {
 		// Access the current game state
 		gameState := p.GameState()
 		// currentTick := gameState.IngameTick()
-		
+
 		// Iterate over all players
 		for _, player := range gameState.Participants().Connected() {
 			if player == nil || player.Entity == nil {
 				continue // Skip if player or entity is nil
 			}
-		
+
 			if player.IsAlive() {
 				frame := Frame{
-					ActiveWeapon:    player.ActiveWeapon().String(),
-					Armor:           player.Armor(),
-					Health:          player.Health(),
-					PositionX:      player.Position().X,
-					PositionY:      player.Position().Y,
-					PositionZ:      player.Position().Z,
-					Team:           int(player.Team),
-					VelocityX:      player.Velocity().X,
-					VelocityY:      player.Velocity().Y,
+					ActiveWeapon: player.ActiveWeapon().String(),
+					Armor:        player.Armor(),
+					Health:       player.Health(),
+					PositionX:    player.Position().X,
+					PositionY:    player.Position().Y,
+					PositionZ:    player.Position().Z,
+					Team:         int(player.Team),
+					VelocityX:    player.Velocity().X,
+					VelocityY:    player.Velocity().Y,
 					// VelocityZ:      player.Velocity().Z,
 					ViewDirectionX: player.ViewDirectionX(),
 					// ViewDirectionY: player.ViewDirectionY(),
-					Weapons:        extractWeapons(player),
+					Weapons: extractWeapons(player),
 				}
-		
+
 				if existingPlayer, exists := playerMap[player.SteamID64]; exists {
 					existingPlayer.Frames = append(existingPlayer.Frames, frame)
 				}
@@ -168,21 +166,21 @@ func main() {
 	}
 	// Create a map to store the player data
 	meta := map[string]interface{}{
-		"isTwoFloor":            mapName == "de_vertigo" || mapName == "de_nuke" || mapName == "de_train",
-		"mapName":               mapName,
-		"mapScale":              getMapScale(mapName),
-		"posX":                  getPosX(mapName),
-		"posY":                  getPosY(mapName),
-		"fromTick":              roundStartTick,
-		"toTick":                roundEndTick,
-		"roundNumber":           roundNumber,
-		"winnerTeam":            int(winningTeam),
-		"winReason":             int(roundEndReason),
-		"tickRate":              64,
-		"lowerSectionBorderZ":   getLowerSectionBorderZ(mapName),
-		"roundTime":             (roundEndTick-roundStartTick) / 64,
-		"roundFreezeEndTick":    roundFreezeEndTick,
-		"roundScoreUpdateTick":  roundScoreUpdateTick,
+		"isTwoFloor":           mapName == "de_vertigo" || mapName == "de_nuke" || mapName == "de_train",
+		"mapName":              mapName,
+		"mapScale":             getMapScale(mapName),
+		"posX":                 getPosX(mapName),
+		"posY":                 getPosY(mapName),
+		"fromTick":             roundStartTick,
+		"toTick":               roundEndTick,
+		"roundNumber":          roundNumber,
+		"winnerTeam":           int(winningTeam),
+		"winReason":            int(roundEndReason),
+		"tickRate":             64,
+		"lowerSectionBorderZ":  getLowerSectionBorderZ(mapName),
+		"roundTime":            (roundEndTick - roundStartTick) / 64,
+		"roundFreezeEndTick":   roundFreezeEndTick,
+		"roundScoreUpdateTick": roundScoreUpdateTick,
 		"score": []int{
 			p.GameState().Team(common.TeamTerrorists).Score(),
 			p.GameState().Team(common.TeamCounterTerrorists).Score(),
@@ -211,16 +209,16 @@ func extractWeapons(player *common.Player) []string {
 
 // getLowerSectionBorderZ returns the lower section border Z value based on the map name
 func getLowerSectionBorderZ(mapName string) float64 {
-    switch mapName {
-    case "de_vertigo":
-        return 11700 
-    case "de_nuke":
-        return -495 
-    case "de_train":
-        return -50
-    default:
-        return 0
-    }
+	switch mapName {
+	case "de_vertigo":
+		return 11700
+	case "de_nuke":
+		return -495
+	case "de_train":
+		return -50
+	default:
+		return 0
+	}
 }
 
 func getMapScale(mapName string) float64 {
