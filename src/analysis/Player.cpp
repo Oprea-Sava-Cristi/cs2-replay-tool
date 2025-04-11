@@ -2,21 +2,23 @@
 #include <iostream>
 #include <utility>
 
+#include "SFML/Graphics/Texture.hpp"
+
 Player::Player()
-    : steamid(0), name("Unknown") {
+    : steamid(0), name("Unknown"), deathTick(-1) {
     playerCircle = sf::CircleShape(8.f);
     playerCircle.setOrigin({8.f, 8.f});
 }
 
-Player::Player(uint64_t steamid, std::string name, const TickData &tick)
-    : steamid(steamid), name(std::move(name)) {
+Player::Player(uint64_t steamid, std::string name, int deathTick, const TickData &tick)
+    : steamid(steamid), name(std::move(name)), deathTick(deathTick)  {
     ticks.push_back(tick);
     playerCircle = sf::CircleShape(8.f);
     playerCircle.setOrigin({8.f, 8.f});
 }
 
-Player::Player(uint64_t steamid, std::string name, const json &frames)
-    : steamid(steamid), name(std::move(name)) {
+Player::Player(uint64_t steamid, std::string name, int deathTick, const json &frames)
+    : steamid(steamid), name(std::move(name)), deathTick(deathTick) {
     for (const auto &frame : frames) {
         TickData tick;
         tick.team = frame.value("team", 0);
@@ -50,12 +52,24 @@ void Player::updatePlayerCircle(const TickData &tick, double scale) {
     }
 }
 
-TickData Player::getTick(size_t index) {
-    return ticks[index];
+void Player::updatePlayerCircle(const sf::Texture& texture) {
+    playerCircle.setTexture(&texture);
+}
+
+std::optional<TickData> Player::getTick(size_t index) {
+    if (index < ticks.size()) {
+        return ticks[index];
+    }
+    return std::nullopt;
 }
 
 sf::CircleShape Player::getPlayerCircle() {
     return playerCircle;
+}
+
+int Player::getPlayerInfo() const {
+    // add the rest of the fields
+    return deathTick;
 }
 
 void Player::print() const {

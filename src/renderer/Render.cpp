@@ -8,12 +8,13 @@
 void renderMap(Round& m)
 {
     sf::RenderWindow window(sf::VideoMode({1024, 1024}), "Map Render");
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(64);
     size_t currentTick = 1280;
     sf::Clock clock;
     const sf::Time frameDuration = sf::milliseconds(static_cast<int32_t>(1000.f/ static_cast<float>(m.getTickRate())));
     double scale = m.getMapScale();
     sf::Texture texture;
+    sf::Texture dead("./sprites/ded.png");
 
     try {
         std::string mapName = "./Maps/" + m.getMapName() + ".png";
@@ -36,10 +37,18 @@ void renderMap(Round& m)
                         window.close();
             }
 
-        if (clock.getElapsedTime() >= frameDuration || true) {
+        if (clock.getElapsedTime() >= frameDuration) {
             for (auto& [id,player] : m.getPlayers()) {
-                TickData tick = player.getTick(currentTick);
-                player.updatePlayerCircle(tick, scale);
+                std::cout << currentTick <<std::endl;
+                auto tick = player.getTick(currentTick);
+                if (tick) {
+                    player.updatePlayerCircle(*tick, scale);
+                } else {
+                    player.updatePlayerCircle(dead);
+                }
+
+
+
             }
             currentTick++;
         }

@@ -35,10 +35,11 @@ Round::Round(const json &j) {
             uint64_t steamid = std::stoull(it.key());
             const json &playerInfo = it.value();
             std::string name = playerInfo.value("name", "Unknown");
+            int deathTick = playerInfo.value("deathTick", -1);
 
             if (playerInfo.contains("frames")) {
                 const json &frames = playerInfo["frames"];
-                Player p(steamid, name, frames);
+                Player p(steamid, name, deathTick, frames);
                 players[steamid] = p;
             }
         }
