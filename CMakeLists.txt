@@ -34,5 +34,4 @@ target_link_libraries(cs2_replay_tool PRIVATE
         SFML::Graphics
         SFML::Network
         SFML::Audio
-        SFML::Main
 )
