@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <fstream>
 
 Round::Round() {
     meta = {0, false, 0.0, "", 1.0, 0, 0, 0, 0, {0, 0}, 64, 0, 0, 0};
@@ -60,4 +61,26 @@ void Round::print() const {
 
 std::string Round::getMapName() const {
     return meta.mapName;
+}
+
+Round createRound(std::string filePath) {
+
+    filePath = R"(.\data\player_data.json)";
+    std::ifstream file(filePath);
+    if (!file) {
+        std::cerr << "Failed to open player_data.json" << std::endl;
+        return {};
+    }
+
+    json j;
+    file >> j;
+    file.close();
+    try {
+        Round round(j);
+        return round;
+    } catch (const std::exception &ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+    }
+
+    return {};
 }

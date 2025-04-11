@@ -38,4 +38,6 @@ public:
     std::string getMapName() const;
 };
 
+Round createRound(std::string);
+
 #endif // ROUND_HPP

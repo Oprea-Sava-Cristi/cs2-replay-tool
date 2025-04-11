@@ -3,6 +3,6 @@
 
 #include "../analysis/Round.hpp"
 
-void renderMap(Round);
+void renderMap(const Round&);
 
 #endif // RENDER_HPP

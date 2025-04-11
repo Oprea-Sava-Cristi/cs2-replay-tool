@@ -5,64 +5,59 @@
 #include <SFML/Graphics.hpp>
 
 
-void renderMap(Round m)
+void renderMap(const Round& m)
 {
-    // Create the main window
     sf::RenderWindow window(sf::VideoMode({1024, 1024}), "Map Render");
 
-    // Load a sprite to display
     sf::Texture texture;
 
     try {
-        // Attempt to load the desired map texture
         std::string mapName = "./Maps/" + m.getMapName() + ".png";
         texture = sf::Texture(mapName);
-    } catch (const sf::Exception& e) {
-        std::cerr << "Failed to load desired_map.png: " << e.what() << std::endl;
+    } catch (const sf::Exception& ex1) {
+        std::cerr << "Failed to load map: " << ex1.what() << std::endl;
         try {
-            // Attempt to load the default texture
             texture = sf::Texture("./Maps/default.png");
-        } catch (const sf::Exception& e) {
-            std::cerr << "Failed to load default.png: " << e.what() << std::endl;
-            return; // Exit if both textures fail to load
+        } catch (const sf::Exception& ex2) {
+            std::cerr << "Failed to load default.png: " << ex2.what() << std::endl;
+            return;
         }
     }
 
     sf::Sprite sprite(texture);
 
+    std::vector<sf::CircleShape> circles;
+    for (int i = 0; i < 10; ++i)
+    {
+        sf::CircleShape circle(10.f);
+        circle.setFillColor(sf::Color(150, 50, 250));
+        circle.setOutlineThickness(1.f);
+        circle.setOutlineColor(sf::Color(250, 150, 100));
 
+        float xPosition = 100.f + i * 80.f;
+        float yPosition = 100.f + (i % 3) * 120.f;
+        circle.setPosition({xPosition, yPosition});
 
-    // Create a graphical text to display
-    // const sf::Font font("arial.ttf");
-    // sf::Text text(font, "Hello SFML", 50);
+        circles.push_back(circle);
+    }
 
-    // Load a music to play
-    // sf::Music music("nice_music.ogg");
-
-    // Play the music
-    // music.play();
-
-    // Start the game loop
     while (window.isOpen())
     {
-        // Process events
         while (const std::optional event = window.pollEvent())
         {
-            // Close window: exit
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
 
-        // Clear screen
         window.clear();
-        //
-        // // Draw the sprite
-        window.draw(sprite);
-        //
-        //  Draw the string
-        // window.draw(text);
 
-        // Update the window
+        window.draw(sprite);
+
+        for (const auto& circle : circles)
+        {
+            window.draw(circle);
+        }
+
         window.display();
     }
 }
