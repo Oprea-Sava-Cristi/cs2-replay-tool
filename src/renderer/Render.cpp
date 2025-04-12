@@ -22,7 +22,7 @@ void updatePositions() {
 void renderMap(Round& round)
 {
     sf::RenderWindow window(sf::VideoMode({1024, 1024}), "Map Render");
-
+    window.setFramerateLimit(64);
     size_t currentTick = round.getStartTick();
     // size_t currentTick = 0;
     size_t lastTick = round.getEndTick();
@@ -46,7 +46,7 @@ void renderMap(Round& round)
     }
     clock.restart();
 
-    while (window.isOpen() && currentTick + 1 < lastTick) {
+    while (window.isOpen()) {
         while (const std::optional event = window.pollEvent()) {
                 if (event->is<sf::Event::Closed>())
                         window.close();
@@ -54,13 +54,14 @@ void renderMap(Round& round)
 
         sf::Time deltaTime = clock.restart();
         accumulator += deltaTime;
-        // std::cout << deltaTime.asMilliseconds() << std::endl;
-
-        while (accumulator >= timePerTick && currentTick + 1 < lastTick) {
-            accumulator -= timePerTick;
-            currentTick++;
+        float alpha = 1.f;
+        if (currentTick + 1 <= lastTick) {
+            while (accumulator >= timePerTick && currentTick + 1 <= lastTick) {
+                accumulator -= timePerTick;
+                currentTick++;
+            }
+            alpha = accumulator.asSeconds() / timePerTick.asSeconds();
         }
-        float alpha = accumulator.asSeconds() / timePerTick.asSeconds();
 
         window.clear();
         window.draw(sprite);

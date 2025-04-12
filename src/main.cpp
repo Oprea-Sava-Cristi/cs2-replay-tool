@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main() {
-    Round round = createRound(R"(./data/player_data (1).json)");
+    Round round = createRound(R"(./data/player_data.json)");
     renderMap(round);
     return 0;
 }
