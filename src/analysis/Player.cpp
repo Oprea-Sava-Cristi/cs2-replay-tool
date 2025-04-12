@@ -40,17 +40,24 @@ Player::Player(uint64_t steamid, std::string name, int deathTick, const json &fr
 
 Player::~Player() = default;
 
-void Player::updatePlayerCircle(const TickData &tick, double scale) {
-    // std::cout << (tick.X-3230)/scale << " " << (tick.Y+1713)/scale << " " << scale << std::endl;
-    playerCircle.setPosition({static_cast<float>((-(-3230)+tick.X)/scale), static_cast<float>((1713-tick.Y)/scale)});
-    if (tick.team == 2) {
-        playerCircle.setFillColor(sf::Color::Yellow);
-    } else if (tick.team == 3) {
-        playerCircle.setFillColor(sf::Color::Blue);
-    } else {
-        playerCircle.setFillColor(sf::Color::White);
+void Player::updatePlayerCircle(const TickData &tickA, const TickData &tickB, float alpha, double scale, const std::pair<int, int> &offset) {
+    auto interpX = static_cast<float>(tickA.X + ( tickB.X - tickA.X ) * alpha);
+    auto interpY = static_cast<float>(tickA.Y + ( tickB.Y - tickA.Y ) * alpha);
+    float screenX = (static_cast<float>(-offset.first) + interpX) / static_cast<float>(scale);
+    float screenY = (static_cast<float>(offset.second) - interpY) / static_cast<float>(scale);
+    playerCircle.setPosition({screenX, screenY});
+
+    switch (tickA.team){
+        case 2: playerCircle.setFillColor(sf::Color::Yellow); break;
+        case 3: playerCircle.setFillColor(sf::Color::Blue); break;
+        default: playerCircle.setFillColor(sf::Color::White); break;
     }
 }
+
+// void updatePlayerCircle(const TickData &tick, double scale, const std::pair<int, int> &offset) {
+//     float screenX = (static_cast<float>(-offset.first) + interpX) / static_cast<float>(scale);
+//     float screenY = (static_cast<float>(offset.second) - interpY) / static_cast<float>(scale);
+// }
 
 void Player::updatePlayerCircle(const sf::Texture& texture) {
     playerCircle.setTexture(&texture);
@@ -61,15 +68,6 @@ std::optional<TickData> Player::getTick(size_t index) {
         return ticks[index];
     }
     return std::nullopt;
-}
-
-sf::CircleShape Player::getPlayerCircle() {
-    return playerCircle;
-}
-
-int Player::getPlayerInfo() const {
-    // add the rest of the fields
-    return deathTick;
 }
 
 void Player::print() const {

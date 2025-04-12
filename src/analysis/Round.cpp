@@ -5,7 +5,23 @@
 #include <fstream>
 
 Round::Round() {
-    meta = {0, false, 0.0, "", 1.0, 0, 0, 0, 0, {0, 0}, 64, 0, 0, 0};
+    meta = {
+        0,                  // fromTick
+        false,              // isTwoFloor
+        0.0,                // lowerSectionBorderZ
+        "",                 // mapName
+        1.0,                // mapScale
+        std::pair{0, 0},// mapOffset
+        0,                  // roundFreezeEndTick
+        0,                  // roundNumber
+        0,                  // roundScoreUpdateTick
+        0,                  // roundTime
+        std::pair{0, 0},// score
+        64,                 // tickRate
+        0,                  // toTick
+        0,                  // winReason
+        0                   // winnerTeam
+    };
 }
 
 Round::Round(const json &j) {
@@ -16,11 +32,12 @@ Round::Round(const json &j) {
         meta.lowerSectionBorderZ = m.value("lowerSectionBorderZ", 0.0);
         meta.mapName = m.value("mapName", "");
         meta.mapScale = m.value("mapScale", 1.0);
+        meta.mapOffset = std::pair(m.value("posX", 0), m.value("posY", 0));
         meta.roundFreezeEndTick = m.value("roundFreezeEndTick", 0);
         meta.roundNumber = m.value("roundNumber", 0);
         meta.roundScoreUpdateTick = m.value("roundScoreUpdateTick", 0);
         meta.roundTime = m.value("roundTime", 0);
-        meta.score = m.value("score", std::vector<int>{0, 0});
+        meta.score = std::pair(m["score"][0].get<int>(), m["score"][1].get<int>());
         meta.tickRate = m.value("tickRate", 64);
         meta.toTick = m.value("toTick", 0);
         meta.winReason = m.value("winReason", 0);
@@ -48,23 +65,11 @@ Round::Round(const json &j) {
     }
 }
 
-int Round::getTickRate() const {
-    return meta.tickRate;
-}
-
-std::unordered_map<uint64_t, Player>& Round::getPlayers() {
-    return players;
-}
-
-double Round::getMapScale() const {
-    return meta.mapScale;
-}
-
 void Round::print() const {
     std::cout << "Map: " << meta.mapName << "\n"
               << "Round: " << meta.roundNumber << "\n"
               << "Round Time: " << meta.roundTime << "\n"
-              << "Score: " << meta.score[0] << " - " << meta.score[1] << "\n"
+              << "Score: " << meta.score.first << " - " << meta.score.second << "\n"
               << "--------------------------" << std::endl;
 
     for (const auto &entry : players) {
@@ -72,13 +77,7 @@ void Round::print() const {
     }
 }
 
-std::string Round::getMapName() const {
-    return meta.mapName;
-}
-
-Round createRound(std::string filePath) {
-
-    filePath = R"(./data/player_data.json)";
+Round createRound(const std::string& filePath) {
     std::ifstream file(filePath);
     if (!file) {
         std::cerr << "Failed to open player_data.json" << std::endl;
