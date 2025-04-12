@@ -45,7 +45,7 @@ type Player struct {
 
 func main() {
 	// Open the demo file
-	f, err := os.Open("../demos/test.dem")
+	f, err := os.Open("../demos/test1.dem")
 	if err != nil {
 		log.Fatalf("Failed to open demo file: %v", err)
 	}
@@ -147,7 +147,7 @@ func main() {
 		// currentTick := gameState.IngameTick()
 
 		// Iterate over all players
-		for _, player := range gameState.Participants().Connected() {
+		for _, player := range gameState.Participants().Playing() {
 			if player == nil || player.Entity == nil {
 				continue // Skip if player or entity is nil
 			}
